@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 )
 
@@ -21,26 +20,20 @@ type Request struct {
 	URL       string
 	Env       map[string]string
 	Processes []string
+
+	Newline bool
 }
 
-// Do requests
-func (r *Request) Do() error {
-	command := r.makeCommand()
-
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/c", command)
-	} else {
-		cmd = exec.Command("sh", "-c", command)
+// Do makes HTTP request
+func (r *Request) Do() (err error) {
+	stdout := capture(func() {
+		err = Run(r.makeCommand(), r.Env)
+	})
+	if r.Newline {
+		stdout = strings.TrimRight(stdout, "\n") + "\n"
 	}
-
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	for k, v := range r.Env {
-		cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", k, v))
-	}
-	return cmd.Run()
+	fmt.Fprint(os.Stdout, stdout)
+	return
 }
 
 func (r *Request) makeCommand() string {

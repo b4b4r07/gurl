@@ -67,6 +67,7 @@ func run(args []string) int {
 		URL:       url,
 		Env:       env,
 		Processes: service.Processes,
+		Newline:   cfg.AutoNewline,
 	}
 
 	if service.UseIAP {

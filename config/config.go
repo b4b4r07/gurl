@@ -20,6 +20,7 @@ var (
 // Config represents config about the services
 type Config struct {
 	DefaultRequestCommand string    `json:"default_request_command"`
+	AutoNewline           bool      `json:"auto_newline"`
 	Services              []Service `json:"services"`
 
 	path string
@@ -87,6 +88,7 @@ func (cfg *Config) LoadFile() error {
 	// Insert sample config map as a default
 	if len(cfg.Services) == 0 {
 		cfg.DefaultRequestCommand = "curl"
+		cfg.AutoNewline = true
 		cfg.Services = []Service{Service{
 			URL:     "https://iap-protected-app-url",
 			Command: "curl",
