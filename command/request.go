@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -26,14 +25,15 @@ type Request struct {
 
 // Do makes HTTP request
 func (r *Request) Do() (err error) {
-	stdout := capture(func() {
-		err = Run(r.makeCommand(), r.Env)
-	})
-	if r.Newline {
-		stdout = strings.TrimRight(stdout, "\n") + "\n"
+	s := &shell{
+		command: r.makeCommand(),
+		env:     r.Env,
+		newline: r.Newline,
+		stdin:   os.Stdin,
+		stdout:  os.Stdout,
+		stderr:  os.Stderr,
 	}
-	fmt.Fprint(os.Stdout, stdout)
-	return
+	return s.Run()
 }
 
 func (r *Request) makeCommand() string {
